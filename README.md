@@ -9,6 +9,6 @@ utility of traversing the MDP.
 We study the planning problem assuming that a near perfect simulator is available. Given how expensive it can be to gather data, the time required to find a near optimal policy for many problems is dominated by the number of calls to the simulator.  A good MDP planning
 algorithm in such a setting attempts to minimise the number of calls made to the
 simulator to learn a policy that is very close to being optimal with a
-high probability. This framework is called PAC-RL.
+high probability. This is known as the probably approximately correctly (PAC) framework.
 
 
