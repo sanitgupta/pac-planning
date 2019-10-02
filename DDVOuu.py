@@ -2,10 +2,12 @@ from constants import *
 import math
 import numpy as np
 from pulp import *
+import time
 from util import LowerP, UpperP, CalculateDelDelV, iteratedConvergence, bestTwoActions
 
 verbose=0
 use_mbae = True
+plot_vstar = True
 
 def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 
@@ -18,8 +20,6 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 	c = 1
 	it=0
 	samples = 0
-
-	### Calculating m based on the parameters
 
 	first_term = mdp.numStates/(epsilon**2*(1-mdp.discountFactor)**4)
 	second_term = math.log(mdp.numStates*mdp.numActions/(epsilon*(1-mdp.discountFactor)*delta))/(epsilon**2*(1-mdp.discountFactor)**4)
@@ -176,7 +176,8 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 		#### Simulate greedily wrt deldelV
 		# print np.unravel_index(deltadeltaV.argmax(), deltadeltaV.shape)
 		current_state, current_action = np.unravel_index(deltadeltaV.argmax(), deltadeltaV.shape)
-		# print "Sampling ", current_state, current_action
+		print "Sampling ", current_state, current_action
+		time.sleep(0.1)
 		ss,rr = mdp.simulate(current_state, current_action)
 		samples += 1
 		#### Add received state to the set of discovered states
@@ -199,10 +200,13 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 			if(verbose==0):
 				outp.write(str(samples))
 				outp.write('\t')
-				if(use_mbae):
-					outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+				if(plot_vstar):
+					outp.write(str(Vstar[start_state]))
 				else:
-					outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
+					if(use_mbae):
+						outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+					else:
+						outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
 				outp.write('\n')
 				if(use_mbae):
 					print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])

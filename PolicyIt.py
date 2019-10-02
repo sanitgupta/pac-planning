@@ -5,12 +5,14 @@ import time
 from util import getPolicies, UpperP, LowerP, indexOfPolicy
 from util import itConvergencePolicy, getRewards, getProb, allOneNeighbours
 from util import CalculateDelDelV
+from evaluatePolicy import evaluatePolicy 
 
 verbose = 0
 ## policyMethod = 0 : brute force method, = 1 : nearest neighbour approach
 policyMethod = 0
+plot_vstar = True
 
-def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="MBAE", use_ddv=True):
+def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="MBAE", use_ddv=False):
 
 	if(randomseed is not None):
 		np.random.seed(randomseed)
@@ -42,6 +44,7 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 	VlowerMBAE = np.zeros((numPolicies, mdp.numStates))
 	VupperMBAE = mdp.Vmax*np.ones((numPolicies, mdp.numStates))
 	Vstar = (mdp.Vmax/2)*np.ones((numPolicies, mdp.numStates))
+	discovered_states = set([start_state])
 	deltadeltaV = np.zeros((mdp.numStates))
 
 	while it < initial_iterations:
@@ -57,7 +60,10 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 					P_s_a_sprime[state][act][s2] = (float)(N_s_a_sprime[state][act][s2])/N_s_a[state][act]
 	samples += initial_iterations
 
-	ff = open(mdp.filename+'-policy' + str(randomseed) +'.txt', 'wb')
+	if(use_ddv):
+		ff = open(mdp.filename+'-policyddv' + str(randomseed) +'.txt', 'wb')
+	else:
+		ff = open(mdp.filename+'-policy' + str(randomseed) +'.txt', 'wb')
 	while samples<MAX_ITERATION_LIMIT:
 		
 		# print counts
@@ -88,33 +94,33 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 							False
 							)
 
-				# Qupper[p] = itConvergencePolicy(
-				# 	Qupper[p],
-				# 	getRewards(R_s_a, current_policy),
-				# 	P_tilda[p],
-				# 	mdp.discountFactor,
-				# 	epsilon,
-				# 	converge_iterations,
-				# 	epsilon_convergence
-				# 	)
-				# Qlower[p] = itConvergencePolicy(
-				# 	Qlower[p],
-				# 	getRewards(R_s_a, current_policy),
-				# 	P_lower_tilda[p],
-				# 	mdp.discountFactor,
-				# 	epsilon,
-				# 	converge_iterations,
-				# 	epsilon_convergence
-				# 	)	
-				# Qstar[p] = itConvergencePolicy(
-				# 	Qstar[p],
-				# 	getRewards(R_s_a, current_policy),
-				# 	getProb(P_s_a_sprime, current_policy),
-				# 	mdp.discountFactor,
-				# 	epsilon,
-				# 	converge_iterations,
-				# 	epsilon_convergence
-				# 	)	
+				Qupper[p] = itConvergencePolicy(
+					Qupper[p],
+					getRewards(R_s_a, current_policy),
+					P_tilda[p],
+					mdp.discountFactor,
+					epsilon,
+					converge_iterations,
+					epsilon_convergence
+					)
+				Qlower[p] = itConvergencePolicy(
+					Qlower[p],
+					getRewards(R_s_a, current_policy),
+					P_lower_tilda[p],
+					mdp.discountFactor,
+					epsilon,
+					converge_iterations,
+					epsilon_convergence
+					)	
+				Qstar[p] = itConvergencePolicy(
+					Qstar[p],
+					getRewards(R_s_a, current_policy),
+					getProb(P_s_a_sprime, current_policy),
+					mdp.discountFactor,
+					epsilon,
+					converge_iterations,
+					epsilon_convergence
+					)	
 
 				# import pdb; pdb.set_trace()
 				# print "mbie bounds calculated!"
@@ -322,16 +328,22 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 		h=0
 		policy1 = policies[policy1Index]
 		policy2 = policies[policy2Index]
+		# print QlowerMBAE
 		# print policy2
 		# print QstarMBAE[:,start_state]
 		state = start_state
-		if (samples%1000)<100:
+		if (samples%1000)<1000:
 			if(verbose==0):
 				# print QupperMBAE[:,start_state]
 				# print Qstar[:,start_state]
 				ff.write(str(samples))
 				ff.write('\t')
-				ff.write(str(QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]))#-epsilon*(1-mdp.discountFactor)/2 
+				if(plot_vstar):
+					# ff.write(str(Vstar[policy1Index][start_state]))
+					ff.write(str(evaluatePolicy(mdp, policy1, start_state)))
+					print evaluatePolicy(mdp, policy1, start_state)
+				else:
+					ff.write(str(QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]))#-epsilon*(1-mdp.discountFactor)/2 
 				print samples, QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]
 				ff.write('\n')
 			else:
@@ -345,11 +357,11 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 
 
 		if(use_ddv):
-			## Caclulate deldelV for all states
+			## Caclulate V for all states
 			for pnum in polList:
 				policiesfddv = policies[pnum]
 				# print "Getting DDV values"
-				for st in range(mdp.numStates):
+				for st in list(discovered_states):
 					ac = policiesfddv[st]
 					#### Compute del del V
 					deltadeltaV[st] = CalculateDelDelV(
@@ -381,7 +393,12 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 				# print "Found max state for DDV: ",cs,ca
 				# time.sleep(0.1)
 				ss, rr = mdp.simulate(cs, ca)
+				print "Policy is ", policiesfddv
+				print "Sampling ", cs, ca
+
+				time.sleep(0.1)	
 				samples = samples +  1
+				discovered_states.add(ss)
 				R_s_a[cs][ca] = (rr + R_s_a[cs][ca]*N_s_a[cs][ca])/(N_s_a[cs][ca]+1)
 				N_s_a[cs][ca] += 1
 				N_s_a_sprime[cs][ca][ss] += 1
@@ -423,12 +440,12 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 				state = ss
 				h+=1
 
-		if (samples%1000)<100:
+		if (samples%1000)<1000:
 			if(QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]-epsilon*(1-mdp.discountFactor)/2<0):
 				print Qupper[policy2Index][start_state],Qstar[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2
 				print "Epsilon condition reached at ",samples, " samples"
 				print policy1
-				# return policy1
+				return policy1
 			else:
 				# print QupperMBAE[policy2Index][start_state],QstarMBAE[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2
 				pass

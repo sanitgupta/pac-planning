@@ -15,6 +15,13 @@ def CalculateValuePolicy(mdp, policy, H):
 
 	return total_reward
 
+def getSampleCount(prob_dist, N_s_a_sprime, Qupper, Qlower, Qstar):
+	# print(np.dot(prob_dist,np.subtract(Qupper,Qlower)))
+	return min(50,int(5*np.dot(prob_dist,np.subtract(Qupper,Qlower),Qstar)))
+
+def prob_step(state_dist,P_s_a_sprime,fixedPolicy):
+	return np.array([np.dot([P_s_a_sprime[x][fixedPolicy[x]][st] for x in range(len(state_dist))],state_dist) for st in range(len(state_dist))])
+
 def bestTwoActions(mdp, state, Qlower, Qupper, Qstar):
 	actionsList = []
 	actionsList.append(np.argmax(Qstar[state]))

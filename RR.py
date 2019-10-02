@@ -3,6 +3,7 @@ import math
 import numpy as np
 import sys
 from util import bestTwoActions, UpperP, LowerP, iteratedConvergence
+from evaluatePolicy import evaluatePolicy
 
 verbose=0
 
@@ -128,11 +129,18 @@ def RoundRobin(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 		count = 0
 		# print iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])/epsilon, sampled_frequency_s_a
 		if(iteration%100==0):
+			for i in range(mdp.numStates):
+				if(final_policy[i]==-1):
+					final_policy[i] = bestTwoActions(mdp,i,QlowerMBAE,QupperMBAE, Qstar)[0]
 			acList = bestTwoActions(mdp, start_state, Qlower, Qupper, Qstar)
 			if(verbose==0):
 				outp.write(str(iteration))
 				outp.write('\t')
 				outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
+				# print(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+				# print(iteration, QupperMBAE[start_state])
+				# outp.write(str(evaluatePolicy(mdp, final_policy, start_state)))
+				print str(evaluatePolicy(mdp, final_policy, start_state))
 				outp.write('\n')
 			else:
 				print iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])
@@ -145,6 +153,7 @@ def RoundRobin(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 		#### Check epsilon condition for only starting state
 		acList = bestTwoActions(mdp, start_state, Qlower, Qupper, Qstar)
 		if(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]<epsilon*(1-mdp.discountFactor)/2 and iteration>50):
+			print(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]],"<",epsilon*(1-mdp.discountFactor)/2)
 		# if(count==mdp.numStates):
 			acList = bestTwoActions(mdp, start_state, QlowerMBAE, QupperMBAE, Qstar)
 			a = open('final'+mdp.filename+'-rr.txt', 'a+')

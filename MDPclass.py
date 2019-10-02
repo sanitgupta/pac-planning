@@ -10,18 +10,21 @@ class myMDP:
 		self.numStates = numStates
 		self.numActions = numActions
 		self.rewards = map(float, rewards)
+		Rmax = max(self.rewards)
+		self.rewards = np.reshape(self.rewards, (numStates, numActions, numStates))
 		self.transitionProbabilities = map(float, transitionProbabilities)
+		self.transitionProbabilities = np.reshape(self.transitionProbabilities, (numStates, numActions, numStates))
 		self.discountFactor = discountFactor
 		#### Normalising rewards so that in range 0,1
-		Rmax = max(self.rewards)
 		self.rewards = np.array(self.rewards)
 		self.rewards = self.rewards/float(Rmax)
-		Rmax = max(self.rewards)
+		Rmax = np.amax(self.rewards)
 		Vmax = Rmax/(1-self.discountFactor)
 		print "Setting Rmax to be", Vmax, self.discountFactor
 		self.Vmax = Vmax
 		self.filename = filename
 		print "Initialised MDP with ", numStates, " states and ", numActions, " actions"
+		print self.rewards, "rewards"
 
 	def printMDP(self):
 		print "The given MDP has : ", self.numStates, " states"
@@ -42,8 +45,10 @@ class myMDP:
 		
 		else:
 			startIndex = state*self.numStates*self.numActions + action*self.numStates
-			probs = self.transitionProbabilities[startIndex:startIndex+self.numStates]
-			rewards = self.rewards[startIndex:startIndex+self.numStates]
+			# probs = self.transitionProbabilities[startIndex:startIndex+self.numStates]
+			probs = self.transitionProbabilities[state][action]
+			# rewards = self.rewards[startIndex:startIndex+self.numStates]
+			rewards = self.rewards[state][action]
 			sampledstate = np.random.choice(np.arange(self.numStates), p=probs)
 			return sampledstate, rewards[sampledstate]
 

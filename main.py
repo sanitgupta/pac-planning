@@ -10,6 +10,8 @@ from LUCBEpisodicBound import LUCBBound
 from MBIE import mbie
 from DDVOuu import ddvouu
 from PolicyIt import policyIt
+from MarkovChain import markovchain
+import numpy as np
 
 def main(argv):
 	# print "Executing MDP"
@@ -22,8 +24,10 @@ def main(argv):
 	global Vmax
 	numStates = int(lines[0])
 	numActions = int(lines[1])
-	rewards = lines[2].split()
-	transitionProbabilities = lines[3].split()
+	rewards = np.array(lines[2].split())
+	# rewards = np.reshape(rewards, (numStates,numActions,numStates))
+	transitionProbabilities = np.array(lines[3].split())
+	# transitionProbabilities = np.reshape(transitionProbabilities, (numStates,numActions,numStates))
 	print lines[4]
 	discountFactor = float(lines[4])
 	filename = mdpname[mdpname.find('-')+1:mdpname.find('.')]
@@ -62,9 +66,17 @@ def main(argv):
 		elif(argv[2]=="policy"):
 			print "Doing policy iteration"
 			print "Final policy is : ", policyIt(theMDP, start_state, eps, randomseed)
+		elif(argv[2]=="markov"):
+			print "Doing markov chain"
+			if(str(argv[3]) in ["use_ddv","episodic","uniform","greedyMBAE","greedyMBIE","mybest"]):
+				print "Final policy is : ", markovchain(theMDP, start_state, eps, randomseed, str(argv[3]))
+			else:
+				print "Please choose a recognized markov algorithm from [use_ddv,episodic,uniform,greedyMBAE,greedyMBIE,mybest]"
 		else:
 			print "Unrecognized algorithm!"
 			print "Please try one of [uniform, fiechter, rr, lucb, mbie, ddv-ouu, policy]"
+
+	
 
 
 def UniformSampling(times, mdp):
