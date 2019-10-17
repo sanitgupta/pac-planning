@@ -12,7 +12,7 @@ class myMDP:
 		self.rewards = map(float, rewards)
 		Rmax = max(self.rewards)
 		Rmin = min(self.rewards)
-		self.rewards = np.reshape(self.rewards, (numStates, numActions, numStates))
+		self.rewards = np.reshape(self.rewards, (numStates, numActions))
 		self.transitionProbabilities = map(float, transitionProbabilities)
 		self.transitionProbabilities = np.reshape(self.transitionProbabilities, (numStates, numActions, numStates))
 		self.discountFactor = discountFactor
@@ -49,9 +49,9 @@ class myMDP:
 			# probs = self.transitionProbabilities[startIndex:startIndex+self.numStates]
 			probs = self.transitionProbabilities[state][action]
 			# rewards = self.rewards[startIndex:startIndex+self.numStates]
-			rewards = self.rewards[state][action]
+			reward = self.rewards[state][action]
 			sampledstate = np.random.choice(np.arange(self.numStates), p=probs)
-			return sampledstate, rewards[sampledstate]
+			return sampledstate, reward
 
 	def getNumStates(self):
 		return self.numStates
