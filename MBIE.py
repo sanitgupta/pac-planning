@@ -23,7 +23,7 @@ def mbie(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 	first_term = mdp.numStates/(epsilon**2*(1-mdp.discountFactor)**4)
 	second_term = math.log(mdp.numStates*mdp.numActions/(epsilon*(1-mdp.discountFactor)*delta))/(epsilon**2*(1-mdp.discountFactor)**4)
 	m = c*(first_term+second_term)
-	print "Chosen value of m is :",H, m
+	print("Chosen value of m is :",H, m)
 	N_s_a = np.zeros((mdp.numStates,mdp.numActions))
 	N_s_a_sprime = np.zeros((mdp.numStates,mdp.numActions,mdp.numStates))
 	P_s_a_sprime = np.zeros((mdp.numStates,mdp.numActions,mdp.numStates))
@@ -56,10 +56,10 @@ def mbie(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 					P_s_a_sprime[state][act][s2] = (float)(N_s_a_sprime[state][act][s2])/N_s_a[state][act]
 
 	samples += initial_iterations
-	print P_s_a_sprime
-	print "Completed initial iterations"
+	print(P_s_a_sprime)
+	print("Completed initial iterations")
 	Qupper, Vupper = iteratedConvergence(Qupper,R_s_a,P_s_a_sprime,mdp.discountFactor, epsilon, converge_iterations, epsilon_convergence)
-	print Qupper, "Qupper"
+	print(Qupper, "Qupper")
 	# print Qupper, Vupper
 	current_state = start_state
 	### Repeat forever
@@ -81,9 +81,9 @@ def mbie(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 					outp.write('\t')
 					outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
 					outp.write('\n')
-					print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]) 
+					print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
 				else:
-					print samples, (QupperMBAE[start_state][acList[1]],QlowerMBAE[start_state][acList[0]]) 
+					print(samples, (QupperMBAE[start_state][acList[1]],QlowerMBAE[start_state][acList[0]]))
 					pass
 				np.savetxt(ff, N_s_a, delimiter=',')
 				ff.write('\n')
@@ -113,8 +113,8 @@ def mbie(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 				current_state = ss
 
 			else:
-				print "TRUEEEE"
-				print N_s_a[current_state]
+				print("TRUEEEE")
+				print(N_s_a[current_state])
 				# print P_s_a_sprime[current_state][current_action]
 				# print np.sum(P_s_a_sprime[current_state][current_action])
 				# print N_s_a[current_state][current_action]

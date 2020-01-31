@@ -34,7 +34,7 @@ def LUCBBound(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 	converge_iterations = 10000
 	epsilon_convergence = 1e-4
 	is_converged = 0
-	print "Vmax", mdp.Vmax
+	print("Vmax", mdp.Vmax)
 
 	### Initial sampling for all state action pairs
 	while it < initial_iterations:
@@ -76,13 +76,13 @@ def LUCBBound(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 			VlowerMBAE[state] = np.amax(QlowerMBAE[state])
 
 		if(np.linalg.norm(oldQlowerMBAE-QlowerMBAE[start_state])<=epsilon_convergence):
-			print "Stopping with ", internal, "initial internal iterations"
+			print("Stopping with ", internal, "initial internal iterations")
 			break
 
 	if internal==converge_iterations:
-			print "Used all iterations"
+			print("Used all iterations")
 	
-	print "Initial estimate of QupperMBAE found! Now sampling"
+	print("Initial estimate of QupperMBAE found! Now sampling")
 
 	sys.stdout = open(mdp.filename+'-lucbbound.txt', 'w+')
 	ff = open(mdp.filename+'-lucbbound-samples.txt', 'w+')
@@ -152,7 +152,7 @@ def LUCBBound(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 
 		count = 0
 		if(iteration%10000==0):
-			print iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])/epsilon 
+			print(iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])/epsilon )
 			np.savetxt(ff, sampled_frequency_s_a, delimiter=',')
 			ff.write('\n')
 			# print QupperMBAE
@@ -184,10 +184,10 @@ def LUCBBound(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 		if(not (start_state in states_to_sample)):
 		# if(count==mdp.numStates):
 			acList = bestTwoActions(mdp, start_state, Qlower, Qupper, Qstar)
-			print "Setting final_policy of ", start_state, " to", acList[0] 
+			print("Setting final_policy of ", start_state, " to", acList[0])
 			final_policy[start_state] = acList[0]
-			print "Iterations taken : ", iteration
-			print "Returning the policy :", final_policy
+			print("Iterations taken : ", iteration)
+			print("Returning the policy :", final_policy)
 			for i in range(mdp.numStates):
 				if(final_policy[i]==-1):
 					final_policy[i] = bestTwoActions(mdp,i,Qlower,Qupper, Qstar)[0]

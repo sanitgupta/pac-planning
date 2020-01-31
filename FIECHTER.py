@@ -15,10 +15,10 @@ def FeichterPolicy(mdp, start_state=0, epsilon=1, randomseed=None, delta=0.1):
 	# sys.stdout = f
 	
 	##### Initialisation
-	print mdp.Vmax, 6/epsilon, mdp.discountFactor
+	print(mdp.Vmax, 6/epsilon, mdp.discountFactor)
 	H = int((math.log(mdp.Vmax) + math.log(6.0/epsilon))/(1-mdp.discountFactor))
 	
-	print "Chosen value of H is : ", H
+	print("Chosen value of H is : ", H)
 	N_h_s_a	= np.zeros((H,mdp.numStates,mdp.numActions))
 	N_h_s_a_s_prime	= np.zeros((H,mdp.numStates,mdp.numActions,mdp.numStates), dtype=np.int)
 	rewards_s_a_sprime	= np.zeros((mdp.numStates,mdp.numActions,mdp.numStates))
@@ -100,7 +100,7 @@ def FeichterPolicy(mdp, start_state=0, epsilon=1, randomseed=None, delta=0.1):
 					outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
 					outp.write('\n')
 				else:
-					print Qupper[start_state], Qlower[start_state]
+					print(Qupper[start_state], Qlower[start_state])
 					# print d_h_policy_s[0][start_state]-2/(1-mdp.discountFactor)
 					# print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])-epsilon*(1-mdp.discountFactor)/2
 				np.savetxt(ff, sampled_frequency_s_a, delimiter=',')
@@ -168,7 +168,7 @@ def FeichterPolicy(mdp, start_state=0, epsilon=1, randomseed=None, delta=0.1):
 		coll = QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]-epsilon*(1-mdp.discountFactor)/2
 	# sys.stdout = orig_stdout
 	# f.close()
-	print iteration
+	print(iteration)
 	a = open('final'+mdp.filename+'-fiechter.txt', 'a+')
 	a.write(str(iteration)+'\n')
 	a.close()

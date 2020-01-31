@@ -28,7 +28,7 @@ def LUCBStopping(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 	converge_iterations = 10000
 	epsilon_convergence = 1e-4
 	is_converged = 0
-	print "Vmax", mdp.Vmax
+	print("Vmax", mdp.Vmax)
 
 	### Initial sampling for all state action pairs
 	while it < initial_iterations:
@@ -70,13 +70,13 @@ def LUCBStopping(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 			Vlower[state] = np.amax(Qlower[state])
 			Vstar[state] = np.amax(Qstar[state])
 		if(np.linalg.norm(oldQlower-Qlower[start_state])<=epsilon_convergence):
-			print "Stopping with ", internal, "initial internal iterations"
+			print("Stopping with ", internal, "initial internal iterations")
 			break
 
-	if internal==converge_iterations:
-			print "Used all iterations"
+	if internal == converge_iterations:
+			print("Used all iterations")
 	
-	print "Initial estimate of Qupper found! Now sampling"
+	print("Initial estimate of Qupper found! Now sampling")
 
 	if(verbose==0):
 		outp = open(mdp.filename+'-lucb.txt', 'wb')
@@ -136,7 +136,7 @@ def LUCBStopping(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 				outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
 				outp.write('\n')
 			else:
-				print Qupper[start_state], Qlower[start_state]
+				print(Qupper[start_state], Qlower[start_state])
 				# print d_h_policy_s[0][start_state]-2/(1-mdp.discountFactor)
 				# print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])-epsilon*(1-mdp.discountFactor)/2
 			np.savetxt(ff, sampled_frequency_s_a, delimiter=',')
@@ -171,10 +171,10 @@ def LUCBStopping(mdp, start_state=0, epsilon=4, delta=0.1, fileprint=1):
 		if(not (start_state in states_to_sample)):
 		# if(count==mdp.numStates):
 			acList = bestTwoActions(mdp, start_state, Qlower, Qupper, Qstar)
-			print "Setting final_policy of ", start_state, " to", acList[0] 
+			print("Setting final_policy of ", start_state, " to", acList[0])
 			final_policy[start_state] = acList[0]
-			print "Iterations taken : ", iteration
-			print "Returning the policy :", final_policy
+			print("Iterations taken : ", iteration)
+			print("Returning the policy :", final_policy)
 			for i in range(mdp.numStates):
 				if(final_policy[i]==-1):
 					final_policy[i] = bestTwoActions(mdp,i,Qlower,Qupper, Qstar)[0]

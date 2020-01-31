@@ -1,16 +1,17 @@
 from constants import *
 import sys
 import random
-from MarkovChain import markovchain
+from MarkovChainEsti import markovchainesti
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt 
 from MDPclass import myMDP
+from util import *
 
 
 def main(argv):
 
-	print argv[1][argv[1].find('/')+1:]
+	print(argv[1][argv[1].find('/')+1:])
 	mdpname = argv[1][argv[1].find('/')+1:]
 	lines = [line.rstrip('\n') for line in open(argv[1])]
 	#print argv[2]
@@ -31,17 +32,17 @@ def main(argv):
 	start_state = 0
 
 	for randomseed in seeds:
-		UncContri = markovchain(mdp, start_state, eps, randomseed, "unc_contri")
-		ImpUnc = markovchain(mdp, start_state, eps, randomseed, "runcertainty")
-		uni = markovchain(mdp, start_state, eps, randomseed, "uniform")
-		epi = markovchain(mdp, start_state, eps, randomseed, "episodic")
+		UncContri = markovchainesti(mdp, start_state, eps, randomseed, "unc_contri")
+		ImpUnc = markovchainesti(mdp, start_state, eps, randomseed, "runcertainty")
+		uni = markovchainesti(mdp, start_state, eps, randomseed, "uniform")
+		epi = markovchainesti(mdp, start_state, eps, randomseed, "episodic")
 
-		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT/2)[mdp.numStates * mdp.numActions + 500:], ImpUnc[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT/2], label ='ImpUnc')
-		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT/2)[mdp.numStates * mdp.numActions + 500:], uni[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT/2], label ='Unifrom')
-		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT/2)[mdp.numStates * mdp.numActions + 500:], epi[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT/2], label ='Episodic')
-		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT/2)[mdp.numStates * mdp.numActions + 500:], UncContri[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT/2], label ='UncContri')
+		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT//2)[mdp.numStates * mdp.numActions + 500:], ImpUnc[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT//2], label ='ImpUnc')
+		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT//2)[mdp.numStates * mdp.numActions + 500:], uni[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT//2], label ='Unifrom')
+		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT//2)[mdp.numStates * mdp.numActions + 500:], epi[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT//2], label ='Episodic')
+		plt.plot(1 + np.arange(MAX_ITERATION_LIMIT//2)[mdp.numStates * mdp.numActions + 500:], UncContri[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT//2], label ='UncContri')
 
-		plt.plot(np.zeros(MAX_ITERATION_LIMIT/2))
+		plt.plot(np.zeros(MAX_ITERATION_LIMIT//2))
 		plt.xlabel('samples')
 		plt.ylabel('Error % in value function')
 		plt.legend(loc = 'upper left')
@@ -50,6 +51,6 @@ def main(argv):
 
 if __name__ == '__main__':
 	if(len(sys.argv)<2):
-		print "Usage : python main.py <mdpfile>"
+		print("Usage : python main.py <mdpfile>")
 	else:
 		main(sys.argv)

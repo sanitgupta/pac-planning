@@ -9,11 +9,11 @@ class myMDP:
 		global Vmax
 		self.numStates = numStates
 		self.numActions = numActions
-		self.rewards = map(float, rewards)
+		self.rewards = list(map(float, rewards))
 		Rmax = max(self.rewards)
 		Rmin = min(self.rewards)
 		self.rewards = np.reshape(self.rewards, (numStates, numActions))
-		self.transitionProbabilities = map(float, transitionProbabilities)
+		self.transitionProbabilities = list(map(float, transitionProbabilities))
 		self.transitionProbabilities = np.reshape(self.transitionProbabilities, (numStates, numActions, numStates))
 		self.discountFactor = discountFactor
 		#### Normalising rewards to [0, 1]
@@ -28,20 +28,20 @@ class myMDP:
 		#print self.rewards, "rewards"
 
 	def printMDP(self):
-		print "The given MDP has : ", self.numStates, " states"
-		print self.numActions, " actions"
-		print self.rewards, " rewards"
-		print self.transitionProbabilities, " Probabilities"
-		print self.discountFactor, " discount factor"
-		print "Read from file ", self.filename
+		print("The given MDP has : ", self.numStates, " states")
+		print(self.numActions, " actions")
+		print(self.rewards, " rewards")
+		print(self.transitionProbabilities, " Probabilities")
+		print(self.discountFactor, " discount factor")
+		print("Read from file ", self.filename)
 
 	def simulate(self, state, action):
 		if (state>=self.numStates or state<0):
-			print "The given state number does not exist"
+			print("The given state number does not exist")
 			return None
 
 		elif (action>=self.numActions or action<0):
-			print "The given action does not exist"
+			print("The given action does not exist")
 			return None
 		
 		else:

@@ -36,8 +36,8 @@ def LUCBEpisodic(mdp, start_state = 0, epsilon = 4, randomseed = None, delta = 0
 	states_to_sample = range(mdp.numStates)
 	colliding_values = np.zeros((mdp.numStates))
 	is_converged = 0
-	print "Vmax", mdp.Vmax
-	print "Epsilon is ", epsilon
+	print("Vmax", mdp.Vmax)
+	print("Epsilon is ", epsilon)
 
 	### Initial sampling for all state action pairs
 	while it < initial_iterations:
@@ -71,13 +71,13 @@ def LUCBEpisodic(mdp, start_state = 0, epsilon = 4, randomseed = None, delta = 0
 			Vstar[state] = np.amax(Qstar[state])
 			
 		if(np.linalg.norm(oldQlowerMBAE-QlowerMBAE[start_state])<=epsilon_convergence):
-			print "Stopping with ", internal, "initial internal iterations"
+			print("Stopping with ", internal, "initial internal iterations")
 			break
 
 	if internal==converge_iterations:
-			print "Used all iterations"
+			print("Used all iterations")
 	
-	print "Initial estimate of QupperMBAE found! Now sampling"
+	print("Initial estimate of QupperMBAE found! Now sampling")
 
 	Qupper = np.copy(QupperMBAE)
 	Qlower = np.copy(QlowerMBAE)
@@ -131,7 +131,7 @@ def LUCBEpisodic(mdp, start_state = 0, epsilon = 4, randomseed = None, delta = 0
 
 		if(verbose==1):
 			# print "Calculated Q values are :"
-			print QupperMBAE[start_state], Qstar[start_state], QlowerMBAE[start_state]
+			print(QupperMBAE[start_state], Qstar[start_state], QlowerMBAE[start_state])
 
 		# Calculations for QupperMBAE and QlowerMBAE
 		#### This involved a two for-loop and iterating convergence
@@ -167,7 +167,7 @@ def LUCBEpisodic(mdp, start_state = 0, epsilon = 4, randomseed = None, delta = 0
 				outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
 				outp.write('\n')
 			else:
-				print iteration, QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]] 
+				print(iteration, QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])
 			np.savetxt(ff, sampled_frequency_s_a, delimiter=',')
 			ff.write('\n')
 
@@ -192,14 +192,14 @@ def LUCBEpisodic(mdp, start_state = 0, epsilon = 4, randomseed = None, delta = 0
 		if(not (start_state in states_to_sample) and iteration>50):
 		# if(count==mdp.numStates):
 			acList = bestTwoActions(mdp, start_state, QlowerMBAE, QupperMBAE, Qstar)
-			print "Difference is ", Qupper[st][acList[1]]-Qlower[st][acList[0]]
-			print "Setting final_policy of ", start_state, " to", acList[0] 
+			print("Difference is ", Qupper[st][acList[1]]-Qlower[st][acList[0]])
+			print("Setting final_policy of ", start_state, " to", acList[0] )
 			final_policy[start_state] = acList[0]
-			print "Iterations taken : ", iteration
+			print("Iterations taken : ", iteration)
 			for i in range(mdp.numStates):
 				if(final_policy[i]==-1):
 					final_policy[i] = bestTwoActions(mdp,i,QlowerMBAE,QupperMBAE, Qstar)[0]
-			print "Returning policy : ", final_policy
+			print("Returning policy : ", final_policy)
 
 			if(iteration!=51):
 				a = open('final'+mdp.filename+'-lucbeps.txt', 'a+')

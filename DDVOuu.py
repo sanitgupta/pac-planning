@@ -25,7 +25,7 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 	second_term = math.log(mdp.numStates*mdp.numActions/(epsilon*(1-mdp.discountFactor)*delta))/(epsilon**2*(1-mdp.discountFactor)**4)
 	m = c*(first_term+second_term)
 	delta = delta/(mdp.numStates*mdp.numActions*m)
-	print "Chosen value of m is :", m
+	print("Chosen value of m is :", m)
 	N_s_a = np.zeros((mdp.numStates,mdp.numActions), dtype=np.int)
 	N_s_a_sprime = np.zeros((mdp.numStates,mdp.numActions,mdp.numStates), dtype=np.int)
 	P_s_a_sprime = np.zeros((mdp.numStates,mdp.numActions,mdp.numStates))
@@ -54,7 +54,7 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 				it+=1
 
 				ss, rr = mdp.simulate(state, act)
-				print "Sampling ", state, act, rr, ss
+				print("Sampling ", state, act, rr, ss)
 				R_s_a[state][act] = (rr + R_s_a[state][act]*N_s_a[state][act])/(N_s_a[state][act]+1)
 				N_s_a[state][act] += 1
 				N_s_a_sprime[state][act][ss] += 1
@@ -63,8 +63,8 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 					P_s_a_sprime[state][act][s2] = (float)(N_s_a_sprime[state][act][s2])/N_s_a[state][act]
 	samples += initial_iterations
 
-	print P_s_a_sprime
-	print "Completed initial iterations"
+	print(P_s_a_sprime)
+	print("Completed initial iterations")
 
 	if(verbose==0):
 		outp = open(mdp.filename+'-ddv' + str(randomseed) +'.txt', 'wb')
@@ -116,15 +116,15 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 			a = open('final'+mdp.filename+'-ddv.txt', 'a+')
 			a.write(str(samples)+'\n')
 			a.close()
-			print Qupper[start_state],Vupper[start_state], Vlower[start_state]
+			print(Qupper[start_state],Vupper[start_state], Vlower[start_state])
 			policy_lower = np.argmax(Qlower, axis=1)
-			print "Iteration number ", samples
-			print "Returning policy because of epsilon-convergence"
-			print policy_lower
-			print np.argmax(QupperMBAE, axis=1)
-			print np.argmax(Qupper, axis=1)
-			print np.argmax(QlowerMBAE, axis=1)
-			print np.argmax(Qstar, axis=1)
+			print("Iteration number ", samples)
+			print("Returning policy because of epsilon-convergence")
+			print(policy_lower)
+			print(np.argmax(QupperMBAE, axis=1))
+			print(np.argmax(Qupper, axis=1))
+			print(np.argmax(QlowerMBAE, axis=1))
+			print(np.argmax(Qstar, axis=1))
 			return policy_lower
 
 		## Caclulate deldelV for all states
@@ -182,11 +182,11 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 		print(deltadeltaV)
 		ss, rr = mdp.simulate(current_state, current_action)
 		samples += 1
-		print "Sampling ", current_state, current_action, rr, ss
+		print("Sampling ", current_state, current_action, rr, ss)
 
 		#### Add received state to the set of discovered states
 		#discovered_states.add(ss)
-		print discovered_states
+		print(discovered_states)
 		### Update believed model
 		R_s_a[current_state][current_action] = (rr + R_s_a[current_state][current_action]*N_s_a[current_state][current_action])/(N_s_a[current_state][current_action]+1)
 		N_s_a[current_state][current_action] += 1	
@@ -213,11 +213,11 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 						outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
 				outp.write('\n')
 				if(use_mbae):
-					print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])
+					print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
 				else:
-					print samples, (Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]])
+					print(samples, (Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
 			else:
-				print samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])
+				print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
 			np.savetxt(ff, N_s_a, delimiter=',')
 			ff.write('\n')
 

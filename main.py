@@ -10,21 +10,24 @@ from LUCBEpisodicBound import LUCBBound
 from MBIE import mbie
 from DDVOuu import ddvouu
 from PolicyIt import policyIt
-from MarkovChain import markovchain
+from MarkovChainEsti import markovchainesti
 import numpy as np
 
 def main(argv):
 	# print "Executing MDP"
-	print argv[1][argv[1].find('/')+1:]
+	print(argv[1][argv[1].find('/')+1:])
 	mdpname = argv[1][argv[1].find('/')+1:]
 	lines = [line.rstrip('\n') for line in open(argv[1])]
-	print argv[2]
+	print(argv[2])
 
 	global Rmax
 	global Vmax
 	numStates = int(lines[0])
 	numActions = int(lines[1])
 	rewards = np.array(lines[2].split())
+	print(rewards)
+	print(min(rewards))
+
 	# rewards = np.reshape(rewards, (numStates,numActions,numStates))
 	transitionProbabilities = np.array(lines[3].split())
 	# transitionProbabilities = np.reshape(transitionProbabilities, (numStates,numActions,numStates))
@@ -39,44 +42,44 @@ def main(argv):
 	# 	start_state = 0
 	start_state = 0
 
-	print seeds
+	print(seeds)
 	for randomseed in seeds:
 		if(argv[2]=="uniform"):
-			print "Doing naive uniform sampling"
-			print "Final policy is : ", UniformSampling(100, theMDP)
+			print("Doing naive uniform sampling")
+			print("Final policy is : ", UniformSampling(100, theMDP))
 		elif(argv[2]=="fiechter"):
-			print "Doing Fiechter algorithm"
-			print "Final policy is : ", FeichterPolicy(theMDP, start_state, eps, randomseed)
+			print("Doing Fiechter algorithm")
+			print("Final policy is : ", FeichterPolicy(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="rr"):
-			print "Doing Round robin"
-			print "Final policy is : ", RoundRobin(theMDP, start_state, eps, randomseed)
+			print("Doing Round robin")
+			print("Final policy is : ", RoundRobin(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="lucb"):
-			print "Doing LUCB type algorithm"
-			print "Final policy is : ", LUCBStopping(theMDP, start_state, eps)
+			print("Doing LUCB type algorithm")
+			print("Final policy is : ", LUCBStopping(theMDP, start_state, eps))
 		elif(argv[2]=="lucb-eps"):
-			print "Doing LUCB episodic type algorithm"
-			print "Final policy is : ", LUCBEpisodic(theMDP, start_state, eps, randomseed)
+			print("Doing LUCB episodic type algorithm")
+			print("Final policy is : ", LUCBEpisodic(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="lucb-bou"):
-			print "Doing LUCB epi with MBIE bound type algorithm"
-			print "Final policy is : ", LUCBBound(theMDP, start_state, eps)
+			print("Doing LUCB epi with MBIE bound type algorithm")
+			print("Final policy is : ", LUCBBound(theMDP, start_state, eps))
 		elif(argv[2]=="mbie"):
-			print "Doing MBIE-reset algorithm"
-			print "Final policy is : ", mbie(theMDP, start_state, eps, randomseed)
+			print("Doing MBIE-reset algorithm")
+			print("Final policy is : ", mbie(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="ddv-ouu"):
-			print "Doing DDV-OUU algorithm"
-			print "Final policy is : ", ddvouu(theMDP, start_state, eps, randomseed)
+			print("Doing DDV-OUU algorithm")
+			print("Final policy is : ", ddvouu(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="policy"):
-			print "Doing policy iteration"
-			print "Final policy is : ", policyIt(theMDP, start_state, eps, randomseed)
-		elif(argv[2]=="markov"):
-			print "Doing markov chain"
-			if(str(argv[3]) in ["use_ddv","episodic","uniform","greedyMBAE","greedyMBIE","mybest","runcertainty", "unc_contri"]):
-				print "Final policy is : ", markovchain(theMDP, start_state, eps, randomseed, str(argv[3]))
+			print("Doing policy iteration")
+			print("Final policy is : ", policyIt(theMDP, start_state, eps, randomseed))
+		elif(argv[2]=="markov_esti"):
+			print("Doing markov chain estimation")
+			if str(argv[3]) in ["use_ddv","episodic","uniform","greedyMBAE","greedyMBIE","mybest","runcertainty", "unc_contri"]:
+				print("Final policy is : ", markovchainesti(theMDP, start_state, eps, randomseed, str(argv[3])))
 			else:
-				print "Please choose a recognized markov algorithm from [use_ddv,episodic,uniform,greedyMBAE,greedyMBIE,mybest]"
+				print("Please choose a recognized markov algorithm from [use_ddv,episodic,uniform,greedyMBAE,greedyMBIE,mybest]")
 		else:
-			print "Unrecognized algorithm!"
-			print "Please try one of [uniform, fiechter, rr, lucb, mbie, ddv-ouu, policy]"
+			print("Unrecognized algorithm!")
+			print("Please try one of [uniform, fiechter, rr, lucb, mbie, ddv-ouu, policy]")
 
 	
 
@@ -99,6 +102,6 @@ def UniformSampling(times, mdp):
 
 if __name__ == '__main__':
 	if(len(sys.argv)<3):
-		print "Usage : python main.py <mdpfile> <algorithm> [uniform, fiechter, rr, lucb, mbie, ddv-ouu, policy] <epsilon>"
+		print("Usage : python main.py <mdpfile> <algorithm> [uniform, fiechter, rr, lucb, mbie, ddv-ouu, policy] <epsilon>")
 	else:
 		main(sys.argv)

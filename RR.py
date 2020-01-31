@@ -140,10 +140,10 @@ def RoundRobin(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 				# print(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
 				# print(iteration, QupperMBAE[start_state])
 				# outp.write(str(evaluatePolicy(mdp, final_policy, start_state)))
-				print str(evaluatePolicy(mdp, final_policy, start_state))
+				print(str(evaluatePolicy(mdp, final_policy, start_state)))
 				outp.write('\n')
 			else:
-				print iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]])
+				print(iteration, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
 				# print iteration, (Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]])
 
 			np.savetxt(ff, sampled_frequency_s_a, delimiter=',')
@@ -159,10 +159,10 @@ def RoundRobin(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 			a = open('final'+mdp.filename+'-rr.txt', 'a+')
 			a.write(str(iteration)+'\n')
 			a.close()
-			print "Setting final_policy of ", start_state, " to", acList[0] 
+			print("Setting final_policy of ", start_state, " to", acList[0])
 			final_policy[start_state] = acList[0]
-			print "Iterations taken : ", iteration
-			print "Returning the policy :", final_policy
+			print("Iterations taken : ", iteration)
+			print("Returning the policy :", final_policy)
 			for i in range(mdp.numStates):
 				if(final_policy[i]==-1):
 					final_policy[i] = bestTwoActions(mdp,i,QlowerMBAE,QupperMBAE, Qstar)[0]

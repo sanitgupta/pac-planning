@@ -19,10 +19,10 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 	policies = np.array(getPolicies(mdp.numStates, mdp.numActions))
 	numPolicies = len(policies)
 	counts = np.zeros((numPolicies))
-	print numPolicies
+	print(numPolicies)
 	H = int((math.log(mdp.Vmax) + math.log(6.0/epsilon))/(1-mdp.discountFactor))
 	
-	print "Chosen value of H is : ", H
+	print("Chosen value of H is : ", H)
 
 	
 	## Initializations
@@ -62,9 +62,9 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 	samples += initial_iterations
 
 	if(use_ddv):
-		ff = open(mdp.filename+'-policyddv' + str(randomseed) +'.txt', 'wb')
+		ff = open(f"logs/{mdp.filename}-policyddv{randomseed}.txt", 'w')
 	else:
-		ff = open(mdp.filename+'-policy' + str(randomseed) +'.txt', 'wb')
+		ff = open(f"logs/{mdp.filename}-policy{randomseed}.txt", 'w')
 	while samples<MAX_ITERATION_LIMIT:
 		
 		# print counts
@@ -159,7 +159,7 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 			else:
 				policy2Index = policy2choices[0]
 
-			# print "polivyiniex", QstarMBAE[:,start_state]
+			# print "policyiniex", QstarMBAE[:,start_state]
 		#action switching policy iteration
 		# elif(policyMethod==1):
 		# 	# print "Choosing 2nd method for finding policy"
@@ -345,16 +345,16 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 				if(plot_vstar):
 					# ff.write(str(Vstar[policy1Index][start_state]))
 					ff.write(str(evaluatePolicy(mdp, policy1, start_state)))
-					print evaluatePolicy(mdp, policy1, start_state)
+					print(evaluatePolicy(mdp, policy1, start_state))
 					print(policy1, policy2)
 				else:
 					ff.write(str(QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]))#-epsilon*(1-mdp.discountFactor)/2 
 
-				print samples, QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]
+				print(samples, QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state])
 				ff.write('\n')
 			else:
-				print samples
-				print QupperMBAE[:,start_state], QlowerMBAE[:,start_state]
+				print(samples)
+				print(QupperMBAE[:,start_state], QlowerMBAE[:,start_state])
 			# np.savetxt(ff, (policies[policy1Index]), fmt="%d")
 		counts[policy1Index] += 1
 		counts[policy2Index] += 1
@@ -399,8 +399,8 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 				# print "Found max state for DDV: ",cs,ca
 				# time.sleep(0.1)
 				ss, rr = mdp.simulate(cs, ca)
-				print "Policy is ", policiesfddv
-				print "Sampling ", cs, ca
+				print("Policy is ", policiesfddv)
+				print("Sampling ", cs, ca)
 
 				time.sleep(0.1)	
 				samples = samples +  1
@@ -504,10 +504,10 @@ def policyIt(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1, bounds="
 
 		if (samples%1000)<1000:
 			if(QupperMBAE[policy2Index][start_state]-QlowerMBAE[policy1Index][start_state]-epsilon*(1-mdp.discountFactor)/2<0):
-				print Qupper[policy2Index][start_state],Qstar[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2
-				print "Epsilon condition reached at ",samples, " samples"
-				print policy1
-				return policy1
+				print(Qupper[policy2Index][start_state],Qstar[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2)
+				print("Epsilon condition reached at ",samples, " samples")
+				print(policy1)
+				return(policy1)
 			else:
 				# print QupperMBAE[policy2Index][start_state],QstarMBAE[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2
 				pass

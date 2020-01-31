@@ -1,8 +1,14 @@
 from constants import *
 import math
+import pickle
 import numpy as np
 from pulp import *
 import sys
+
+
+def pickle_save(obj, file_path):
+
+    pickle.dump(obj, open(file_path, "wb"))
 
 def CalculateValuePolicy(mdp, policy, H):
 	total_reward = 0
@@ -40,8 +46,8 @@ def getBestPolicy(mdp, rewards, transitions):
 	for i in range(mdp.numStates):
 		V_s[i] = LpVariable("Value for "+str(i))
 
-	print rewards
-	print transitions
+	print(rewards)
+	print(transitions)
 
 	prob += lpSum(V_s[i] for i in range(mdp.numStates)), "Sum of V functions"
 
@@ -57,7 +63,7 @@ def getBestPolicy(mdp, rewards, transitions):
 	# print "Status:", LpStatus[prob.status]
 
 	for v in prob.variables():
-		print v.name, "=", v.varValue
+		print(v.name, "=", v.varValue)
 
 	policy_final = [0 for i in range(mdp.numStates)]
 	for st in range(mdp.numStates):
@@ -172,9 +178,10 @@ def UpperP(state, action, delta, N_sprime, numStates, Vupper, good_turing, algo=
 	P_tilda_sprime = [(float)(N_sprime[i])/N_total for i in range(numStates)]
 
 	if(algo=="mbie"):
-		delta_w = wL1Confidence(N_total,delta, numStates)/2
+		delta_w = wL1Confidence(N_total, delta, numStates)/2
 	else:
-		delta_w = wL1Confidence(N_total+1,delta, numStates)/2
+		#delta_w = wL1Confidence(N_total+1,delta, numStates)/2
+		delta_w = wL1Confidence(N_total, delta, numStates)/2
 
 	if(good_turing):
 		delta_w = min(wL1Confidence(N_total,delta/2, numStates)/2,(1+math.sqrt(2))*math.sqrt(math.log(2/delta)/N_total))
