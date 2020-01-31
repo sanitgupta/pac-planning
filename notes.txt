@@ -1,0 +1,35 @@
+CORRECTED Uniform sampling fuck up corrected floated conversion
+
+DDV algorithm is computing weird values for deldelV
+CORRECTED Inspite of having the 'discovered states' shit, it was sampling from all states earlier 
+
+PolicyIt gets stuck, keeps switching between two policies forever
+
+Everything deals with Q upper and Q upper mbae, and V mbae and Q upper mbae have the same dimensions too
+
+Even though the underlying model assumes R(s, a, s'), the code assumes stochastic R(s, a)
+
+I think we should be looking to answer the problem:
+By each state, what is the max uncertainty in sigma D*R caused?
+
+i.e. over the confidence interval CI, instead of calculating upperP, we'd compute
+T such that sigma D*r is maximised or minimized I BELIEVE THIS WOULD REALLY HELP
+
+Because using such loose bounds overestimates the uncertainty related to lower states more than later states. e.g. let us say that in the riverswim mc each state has been pulled the same number of times -> the uncertainty in each state's transitions would be equal -> uncertainty in D will be disproportionately higher for starting states I think
+
+But, is this simply equivalent to some mbie bounds or something? I don't think so
+And can that upperP algorithm be modified for our use? Remains to be seen
+
+
+Model uncertainty in r to R_max or R_min in remaining dist
+
+
+Unc_contri analysis
+seed 20 riverswim... from overestimating value a lot jumps to underestimating it even more
+t = 1100 - 1124  - 1150
+hadn't learnt that you could access state 5 from 4. So, was sampling all states except 5 to find a way and was biased towards sampling initial states. So, sampled 4 very few times and thus learned the path to 5 very late and even after that sampled the initial states more frequently because they contributed more to D
+
+t = 19500 - 19531 - 19550
+
+
+also, asymptotically doesn't seem to converge
