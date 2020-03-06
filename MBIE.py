@@ -64,29 +64,29 @@ def mbie(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 	current_state = start_state
 	### Repeat forever
 
-	if(verbose==0):
-		outp = open(mdp.filename+'-mbie' + str(randomseed) +'.txt', 'wb')
+	#if(verbose==0):
+		# outp = open(mdp.filename+'-mbie' + str(randomseed) +'.txt', 'wb')
 	# sys.stdout = open(mdp.filename+'-mbie.txt', 'w+')
-	ff = open(mdp.filename+'-mbie-samples.txt', 'w+')
+	# ff = open(mdp.filename+'-mbie-samples.txt', 'w+')
 
 	while samples<MAX_ITERATION_LIMIT:
 		current_state = start_state
 		h=1
 		# print Qupper[start_state], Qstar[start_state], Qlower[start_state]
 		while h<=H:
-			if(samples%100==0):
+			if(samples%10==0):
 				acList = bestTwoActions(mdp, start_state, QlowerMBAE, QupperMBAE, Qstar)
 				if(verbose==0):
-					outp.write(str(samples))
-					outp.write('\t')
-					outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
-					outp.write('\n')
-					print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+					# outp.write(str(samples))
+					# outp.write('\t')
+					# outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))#-epsilon*(1-mdp.discountFactor)/2 
+					# outp.write('\n')
+					print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]), Vupper[start_state], Vlower[start_state])
 				else:
 					print(samples, (QupperMBAE[start_state][acList[1]],QlowerMBAE[start_state][acList[0]]))
 					pass
-				np.savetxt(ff, N_s_a, delimiter=',')
-				ff.write('\n')
+				# np.savetxt(ff, N_s_a, delimiter=',')
+				# ff.write('\n')
 			for i in range(mdp.numStates):
 				# print "For state ", i, " doing UpperP"
 				for j in range(mdp.numActions):

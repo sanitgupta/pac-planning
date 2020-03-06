@@ -35,7 +35,7 @@ def main(argv):
 	filename = mdpname[mdpname.find('-')+1:mdpname.find('.')]
 	theMDP = myMDP(numStates, numActions, rewards, transitionProbabilities, discountFactor, filename)
 	theMDP.printMDP()
-	eps = eps_values[mdpname]
+	eps = 0.1
 	# if(mdpname=="mdp-riverswim.txt"):
 	# 	start_state = random.randint(0,1)
 	# else:
@@ -73,7 +73,7 @@ def main(argv):
 			print("Final policy is : ", policyIt(theMDP, start_state, eps, randomseed))
 		elif(argv[2]=="markov_esti"):
 			print("Doing markov chain estimation")
-			if str(argv[3]) in ["use_ddv","episodic","uniform","greedyMBAE","greedyMBIE","mybest","runcertainty", "unc_contri"]:
+			if str(argv[3]) in ["use_ddv","episodic","uniform","greedyMBAE","greedyMBIE","mybest","runcertainty", "unc_contri", "rupper_uncertainty"]:
 				print("Final policy is : ", markovchainesti(theMDP, start_state, eps, randomseed, str(argv[3])))
 			else:
 				print("Please choose a recognized markov algorithm from [use_ddv,episodic,uniform,greedyMBAE,greedyMBIE,mybest]")

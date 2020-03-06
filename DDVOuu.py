@@ -6,7 +6,7 @@ import time
 from util import LowerP, UpperP, CalculateDelDelV, iteratedConvergence, bestTwoActions
 
 verbose=0
-use_mbae = True
+use_mbae = False
 plot_vstar = True
 
 def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
@@ -121,10 +121,11 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 			print("Iteration number ", samples)
 			print("Returning policy because of epsilon-convergence")
 			print(policy_lower)
-			print(np.argmax(QupperMBAE, axis=1))
-			print(np.argmax(Qupper, axis=1))
-			print(np.argmax(QlowerMBAE, axis=1))
-			print(np.argmax(Qstar, axis=1))
+			# print(np.argmax(QupperMBAE, axis=1))
+			# print(np.argmax(Qupper, axis=1))
+			# print(np.argmax(QlowerMBAE, axis=1))
+			# print(np.argmax(Qstar, axis=1))
+			# print(policy_lower)
 			return policy_lower
 
 		## Caclulate deldelV for all states
@@ -179,14 +180,15 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 		# print np.unravel_index(deltadeltaV.argmax(), deltadeltaV.shape)
 		current_state, current_action = np.unravel_index(deltadeltaV.argmax(), deltadeltaV.shape)
 		#time.sleep(0.1)
-		print(deltadeltaV)
+		#print(deltadeltaV)
 		ss, rr = mdp.simulate(current_state, current_action)
 		samples += 1
-		print("Sampling ", current_state, current_action, rr, ss)
+		print(samples, "Sampling ", current_state, current_action, rr, ss)
+		print(VupperMBAE[start_state] - VlowerMBAE[start_state])
 
 		#### Add received state to the set of discovered states
 		#discovered_states.add(ss)
-		print(discovered_states)
+		#print(discovered_states)
 		### Update believed model
 		R_s_a[current_state][current_action] = (rr + R_s_a[current_state][current_action]*N_s_a[current_state][current_action])/(N_s_a[current_state][current_action]+1)
 		N_s_a[current_state][current_action] += 1	
@@ -201,25 +203,25 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 				acList = bestTwoActions(mdp, start_state, QlowerMBAE, QupperMBAE, Qstar)
 			else:
 				acList = bestTwoActions(mdp, start_state, Qlower, Qupper, Qstar)
-			if(verbose==0):
-				outp.write(str(samples))
-				outp.write('\t')
-				if(plot_vstar):
-					outp.write(str(Vstar[start_state]))
-				else:
-					if(use_mbae):
-						outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
-					else:
-						outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
-				outp.write('\n')
-				if(use_mbae):
-					print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
-				else:
-					print(samples, (Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
-			else:
-				print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
-			np.savetxt(ff, N_s_a, delimiter=',')
-			ff.write('\n')
+			# if(verbose==0):
+			# 	outp.write(str(samples))
+			# 	outp.write('\t')
+			# 	if(plot_vstar):
+			# 		outp.write(str(Vstar[start_state]))
+			# 	else:
+			# 		if(use_mbae):
+			# 			outp.write(str(QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+			# 		else:
+			# 			outp.write(str(Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
+			# 	outp.write('\n')
+			# 	if(use_mbae):
+			# 		print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+			# 	else:
+			# 		print(samples, (Qupper[start_state][acList[1]]-Qlower[start_state][acList[0]]))
+			# else:
+			# 	print(samples, (QupperMBAE[start_state][acList[1]]-QlowerMBAE[start_state][acList[0]]))
+			# np.savetxt(ff, N_s_a, delimiter=',')
+			# ff.write('\n')
 
 		### Calculating MBAE bounds
 		for internal in range(converge_iterations):
@@ -245,12 +247,12 @@ def ddvouu(mdp, start_state=0, epsilon=4, randomseed=None, delta=0.1):
 				VlowerMBAE[state] = np.amax(QlowerMBAE[state])
 				Vstar[state] = np.amax(Qstar[state])
 			if(np.linalg.norm(oldQlower-QlowerMBAE[start_state])<=epsilon_convergence):
-				# print "Stopping with ", internal, "iterations"
+				#print("Stopping with ", internal, " iterations and ", samples, " samples")
 				break
 
 		# if(samples==initial_iterations+2):
 		# 	Qupper = np.copy(QupperMBAE)
 		# 	Qlower = np.copy(QlowerMBAE)
 
-
+	print(best_policy)
 	return best_policy

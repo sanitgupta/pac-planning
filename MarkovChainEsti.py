@@ -35,6 +35,18 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 	R_s_a_sprime = np.zeros((mdp.numStates, mdp.numActions, mdp.numStates))
 	N_s_a_sprime = np.zeros((mdp.numStates, mdp.numActions, mdp.numStates), dtype=np.int)
 	N_s_a = np.zeros((mdp.numStates, mdp.numActions), dtype=np.int)
+
+
+	N_s_a[3][0] = 10000
+	N_s_a[4][1] = 6000
+	N_s_a[5][0] = 3000
+
+	N_s_a_sprime[3][0][2] = 10000
+	N_s_a_sprime[4][1][3] = 600
+	N_s_a_sprime[4][1][4] = 3600
+	N_s_a_sprime[4][1][5] = 1800
+	N_s_a_sprime[5][0][4] = 3000
+
 	P_s_a_sprime = np.zeros((mdp.numStates, mdp.numActions, mdp.numStates))
 	Qupper = mdp.Vmax*np.ones((numPolicies, mdp.numStates))
 	QupperMBAE = mdp.Vmax*np.ones((numPolicies, mdp.numStates))
@@ -57,6 +69,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 	state_dist = np.zeros((mdp.numStates))
 	state_dist[start_state] = 1
 	print(state_dist)
+
 
 
 	while it < initial_iterations:
@@ -91,7 +104,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 		ff = open(f"logs/{mdp.filename}-markovunc_contri{randomseed}.txt", 'w')
 
 	
-	while samples<MAX_ITERATION_LIMIT/2:
+	while samples<MAX_ITERATION_LIMIT:
 		
 		p = 0
 		current_policy = fixedPolicy
@@ -172,19 +185,19 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 		policy1 = fixedPolicy
 		state = start_state
 		# print "samples", samples
-		if (samples%10000)<100:
-			if(verbose==0):
-				ff.write(str(samples))
-				ff.write('\t')
-				if(plot_vstar):
-					ff.write(str(Vstar[policy1Index][start_state]))
-				else:
-					ff.write(str(QupperMBAE[policy1Index][start_state]-QlowerMBAE[policy1Index][start_state]))#-epsilon*(1-mdp.discountFactor)/2 
-				print(samples, QupperMBAE[policy1Index][start_state]-QlowerMBAE[policy1Index][start_state])
-				ff.write('\n')
-			else:
-				print(samples)
-				print(QupperMBAE[:,start_state], QlowerMBAE[:,start_state])
+		# if (samples%10000)<100:
+		# 	if(verbose==0):
+		# 		ff.write(str(samples))
+		# 		ff.write('\t')
+		# 		if(plot_vstar):
+		# 			ff.write(str(Vstar[policy1Index][start_state]))
+		# 		else:
+		# 			ff.write(str(QupperMBAE[policy1Index][start_state]-QlowerMBAE[policy1Index][start_state]))#-epsilon*(1-mdp.discountFactor)/2 
+		# 		print(samples, QupperMBAE[policy1Index][start_state]-QlowerMBAE[policy1Index][start_state])
+		# 		ff.write('\n')
+		# 	else:
+		# 		print(samples)
+		# 		print(QupperMBAE[:,start_state], QlowerMBAE[:,start_state])
 
 		polList = [policy1Index]
 
@@ -232,7 +245,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 			epsilon_convergence
 			)
 	
-
+		#print("V_true: ", V_true)
 
 		if(algo=="use_ddv"):
 			## Caclulate V for all states
@@ -285,7 +298,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 					P_s_a_sprime[cs][ca][s2] = (float)(N_s_a_sprime[cs][ca][s2])/N_s_a[cs][ca]
 		
 		elif(algo == "episodic"):
-			while h<H:
+			while h<H and samples < MAX_ITERATION_LIMIT:
 				act = policy1[state]
 				# print "------>",current_state, current_action
 				ss, rr = mdp.simulate(state, act)
@@ -301,20 +314,21 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 				h+=1
 
 				V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
-
+				# print(samples, V_error[samples])
 		elif(algo == "uniform"):
 			for st in range(mdp.numStates):
-				ac = fixedPolicy[st]
-				ss, rr = mdp.simulate(st, ac)
-				# print "Sampling ", st, ac
-				samples += 1
-				R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
-				N_s_a[st][ac] += 1
-				N_s_a_sprime[st][ac][ss] += 1
-				for s2 in range(mdp.numStates):
-					P_s_a_sprime[st][ac][s2] = (float)(N_s_a_sprime[st][ac][s2])/N_s_a[st][ac]
+				if samples < MAX_ITERATION_LIMIT:
+					ac = fixedPolicy[st]
+					ss, rr = mdp.simulate(st, ac)
+					# print "Sampling ", st, ac
+					samples += 1
+					R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
+					N_s_a[st][ac] += 1
+					N_s_a_sprime[st][ac][ss] += 1
+					for s2 in range(mdp.numStates):
+						P_s_a_sprime[st][ac][s2] = (float)(N_s_a_sprime[st][ac][s2])/N_s_a[st][ac]
 
-				V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
+					V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
 
 
 		elif(algo == "runcertainty"):
@@ -340,13 +354,56 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 			ss, rr = mdp.simulate(st, ac)
 			# print "Sampling ", st, ac, rr, ss
 			samples += 1
-			R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
+			# print("Sample No. ", samples, " = ", st, ac, rr, ss)
+			#R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
 			N_s_a[st][ac] += 1
 			N_s_a_sprime[st][ac][ss] += 1
 			for s2 in range(mdp.numStates):
 				P_s_a_sprime[st][ac][s2] = (float)(N_s_a_sprime[st][ac][s2])/N_s_a[st][ac]
 
 			V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
+			# print(V_error[samples])
+
+		elif(algo == "rupper_uncertainty"):
+
+			deltaW = np.zeros(mdp.numStates)
+			mu_upper = np.zeros((H+1, mdp.numStates))
+			D_upper = np.zeros(mdp.numStates)
+
+			for st in range(mdp.numStates):
+				#transition uncertainty for given s, pi(s)
+				deltaW[st] = delW(st, fixedPolicy[st], delta, N_s_a_sprime[st][fixedPolicy[st]], mdp.numStates, False)
+
+			mu_upper[0][start_state] = 1
+
+			for t in range(H):
+				D_upper = D_upper + (mdp.discountFactor**t) * mu_upper[t]
+
+				for s in range(mdp.numStates):
+					for s_ in range(mdp.numStates):
+						mu_upper[t+1][s] += mu_upper[t][s_] * min(P_s_a_sprime[s_][fixedPolicy[s_]][s] + deltaW[s_], 1)
+
+			st = np.argmax(deltaW * D_upper)
+
+			ac = fixedPolicy[st]
+
+			ss, rr = mdp.simulate(st, ac)
+			
+			samples += 1
+
+			# print("Sample No. ", samples, " = ", st, ac, rr, ss)
+
+			#R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
+			N_s_a[st][ac] += 1
+			N_s_a_sprime[st][ac][ss] += 1
+			# print(N_s_a)
+			# print(P_s_a_sprime)
+			for s2 in range(mdp.numStates):
+				P_s_a_sprime[st][ac][s2] = (float)(N_s_a_sprime[st][ac][s2])/N_s_a[st][ac]
+
+			V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
+			# print(V_error[samples])
+
 
 		elif(algo == "unc_contri"):
 			mu = np.zeros(mdp.numStates)
@@ -435,6 +492,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 			# if samples > 49500:
 			# 	print(f"Sample no. {samples}", st, ac, rr, ss)
 			samples += 1
+			# print("Sample No. ", samples, " = ", st, ac, rr, ss)
 			R_s_a[st][ac] = (rr + R_s_a[st][ac]*N_s_a[st][ac])/(N_s_a[st][ac]+1)
 			N_s_a[st][ac] += 1
 			N_s_a_sprime[st][ac][ss] += 1
@@ -442,6 +500,7 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 				P_s_a_sprime[st][ac][s2] = (float)(N_s_a_sprime[st][ac][s2])/N_s_a[st][ac]
 
 			V_error[samples] = ErrorV(mdp, V_true, V_estimate, R_s_a, P_s_a_sprime, current_policy, start_state, epsilon, converge_iterations, epsilon_convergence)
+			# print(V_error[samples])
 			# if samples > 49500:
 			# 	print(f"Error = {V_error[samples]}")
 			# if V_error[samples]/V_true[start_state] > -0.5 :
@@ -505,15 +564,15 @@ def markovchainesti(mdp, start_state=0, epsilon=4, randomseed=None, algo="episod
 				# print QupperMBAE[policy2Index][start_state],QstarMBAE[policy1Index][start_state],epsilon*(1-mdp.discountFactor)/2
 				pass
 			# print "ends here"
-	print(mdp.numStates, mdp.numActions)
+	#print(mdp.numStates, mdp.numActions)
 	# plt.plot(1 + np.arange(MAX_ITERATION_LIMIT//2)[mdp.numStates * mdp.numActions + 500:], V_error[mdp.numStates * mdp.numActions + 500: MAX_ITERATION_LIMIT//2]/ V_true[start_state])
 	# plt.title('Uniform Sampling')
 	# plt.xlabel('samples')
 	# plt.ylabel('Error fraction in value function')
 	# plt.show()
 
-	print(algo, " ", V_true)
-	print(algo, " ", V_estimate)
-	ff.close()
+	#print(algo, " ", V_true)
+	#print(algo, " ", V_estimate)
+	#ff.close()
 	return V_error/V_true[start_state]
 
